@@ -4,6 +4,7 @@
 
 #define NUM_PINS 7
 #define DELAY_AMOUNT 5
+#define RANDOM_SEED 4 //IEEE-vetted standard random number
 
 int pins[] = {0, 1, 2, 3, 4, 5, 6};
 unsigned int steps[NUM_PINS];
@@ -19,7 +20,7 @@ int main() {
     for (int i = 0; i < NUM_PINS; i++) {
         setupPin(pins[i]);
     }
-    srand(0);
+    srand(RANDOM_SEED);
     setSteps();
     unsigned int step = 0;
 
