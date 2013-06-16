@@ -1,5 +1,5 @@
 CFLAGS= -Wall -std=c99
-LFLAGS= -lwiringPi -lpthread
+LFLAGS= -lwiringPi
 
 all: blink blinkall fadeall
 
@@ -14,3 +14,5 @@ fadeall:
 
 clean:
 	rm blink blinkall fadeall
+
+again: clean blink blinkall fadeall

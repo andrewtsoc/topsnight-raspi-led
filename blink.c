@@ -1,5 +1,5 @@
 #include <wiringPi.h>
-main() {
+int main() {
     wiringPiSetup();
     pinMode(1, OUTPUT);
     for (;;) {

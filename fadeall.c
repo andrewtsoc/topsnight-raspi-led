@@ -1,26 +1,28 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-#define NUM_PINS 7
+#define NUM_LED_PINS 7
 #define DELAY_AMOUNT 5
 #define RANDOM_SEED 4 //IEEE-vetted standard random number
 
 int pins[] = {0, 1, 2, 3, 4, 5, 6};
-unsigned int steps[NUM_PINS];
+unsigned int steps[NUM_LED_PINS];
 
 
 int setupPin(int pin);
 void setSteps();
-void setAllPins(int step);
+void setAllPins(unsigned int step);
 
 int main() {
     //setup()
     wiringPiSetup();
-    for (int i = 0; i < NUM_PINS; i++) {
+    for (int i = 0; i < NUM_LED_PINS; i++) {
         setupPin(pins[i]);
     }
     srand(RANDOM_SEED);
+    fprintf(stderr, "Set random to be %i\n", RANDOM_SEED);
     setSteps();
     unsigned int step = 0;
 
@@ -39,15 +41,17 @@ int setupPin(int pin) {
 }
 
 void setSteps() {
-    for (int i = 0; i < NUM_PINS; i++) {
-        steps[i] = rand() % 202;
+    for (int i = 0; i < NUM_LED_PINS; i++) {
+        steps[i] = rand() % 202U;
+        fprintf(stderr, "Pin %i has a step of %u\n", i, steps[i]);
+        //steps[i] = 30 * i; for debugging
     }
 }
 
-void setAllPins(int step) {
+void setAllPins(unsigned int step) {
     unsigned int numIter;
-    for (int i = 0; i < NUM_PINS; i++) {
-        numIter = (step - steps[i]) % 202;
+    for (int i = 0; i < NUM_LED_PINS; i++) {
+        numIter = (step + steps[i]) % 202U;
         if (numIter < 101) { //going up
             softPwmWrite(pins[i], numIter);
         }
