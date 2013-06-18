@@ -43,7 +43,7 @@ int setupPin(int pin) {
 void setSteps() {
     for (int i = 0; i < NUM_LED_PINS; i++) {
         steps[i] = rand() % 202U;
-        fprintf(stderr, "Pin %i has a step of %u\n", i, steps[i]);
+        fprintf(stderr, "Pin %i has a step of %u\n", pins[i], steps[i]);
         //steps[i] = 30 * i; for debugging
     }
 }
