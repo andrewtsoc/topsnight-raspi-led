@@ -31,7 +31,7 @@ void switchStates(){
     delay(delayTime); 
   }
   for(int i=0;i<numPins;i++)
-    isOn[i] = !isBeingChanged[i] != !isOn[i]; //xor
+    isOn[i] = isBeingChanged[i] != isOn[i]; //xor
 }
 
 void markChanges(){
