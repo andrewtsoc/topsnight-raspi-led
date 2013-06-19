@@ -2,6 +2,7 @@
 #include <softPwm.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #define NUM_LED_PINS 7
 #define DELAY_AMOUNT 5
@@ -32,7 +33,7 @@ int main() {
     fprintf(stderr, "Set random to be %i\n", RANDOM_SEED);
     for (int i = 0; i < NUM_LED_PINS; i++) {
         isOn[i] = rand() % 2;
-        softPwmWrite(pins[i], (isOn[i])? 255:0);
+        softPwmWrite(pins[i], (isOn[i])? 100:0);
     }
     delay(3000);
 
@@ -58,15 +59,15 @@ void markChanges() {
 
 void switchStates() {
     int delayTime = (rand() % rangeFadeTime + minFadeTime) / 51;
-    for(int fadeValue = 0 ; fadeValue < 256; fadeValue +=5) { //fade
-        for(int i=0;i<numPins;i++) { //loop over all pins
+    for(int fadeValue = 0 ; fadeValue < 101; fadeValue ++) { //fade
+        for(int i=0;i<NUM_LED_PINS;i++) { //loop over all pins
             if (isBeingChanged[i]) { //change only marked pins
                 int pin = pins[i];
-                analogWrite(pin, (isOn[i])? 255-fadeValue : fadeValue); //fade on or off 
+                softPwmWrite(pin, (isOn[i])? 100-fadeValue : fadeValue); //fade on or off 
             }
         }
     delay(delayTime); 
     }
-    for(int i=0;i<numPins;i++)
+    for(int i=0;i<NUM_LED_PINS;i++)
         isOn[i] = !isBeingChanged[i] != !isOn[i]; //xor
 }
