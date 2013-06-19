@@ -8,10 +8,10 @@
 #define DELAY_AMOUNT 5
 #define RANDOM_SEED 4 //IEEE-vetted standard random number
 
-const int minFadeTime = 500;
-const int rangeFadeTime = 500;
-const int minWait = 500;
-const int rangeWait = 500;
+const int minFadeTime = 5;
+const int rangeFadeTime = 1;
+const int minWait = 4;
+const int rangeWait = 6;
 
 int pins[] = {0, 1, 2, 3, 4, 5, 6};
 unsigned int steps[NUM_LED_PINS];
@@ -35,7 +35,7 @@ int main() {
         isOn[i] = rand() % 2;
         softPwmWrite(pins[i], (isOn[i])? 100:0);
     }
-    delay(3000);
+    //delay(3000);
 
     //loop()
     for (;;) {
@@ -58,7 +58,7 @@ void markChanges() {
 }
 
 void switchStates() {
-    int delayTime = (rand() % rangeFadeTime + minFadeTime) / 51;
+    int delayTime = (rand() % rangeFadeTime + minFadeTime);
     for(int fadeValue = 0 ; fadeValue < 101; fadeValue ++) { //fade
         for(int i=0;i<NUM_LED_PINS;i++) { //loop over all pins
             if (isBeingChanged[i]) { //change only marked pins
