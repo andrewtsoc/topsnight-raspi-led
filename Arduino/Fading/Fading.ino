@@ -1,18 +1,17 @@
-//adjust these values as needed
-const int numPins = 6;
-const int minFadeTime = 500;
-const int rangeFadeTime = 500;
-const int minWait = 500;
-const int rangeWait = 500;
-const int seed = 1337;
+#define NUM_LED_PINS 6
+#define MIN_FADE_TIME 5
+#define RANGE_FADE_TIME 1
+#define MIN_WAIT 6
+#define RANGE_WAIT 12
+#define RANDOM_SEED 4
 
-int pins[numPins] = {3,5,6,9,10,11};
-boolean isOn[numPins];
-boolean isBeingChanged[numPins];
+int pins[] = {3,5,6,9,10,11};
+boolean isOn[NUM_LED_PINS];
+boolean isBeingChanged[NUM_LED_PINS];
 
 void setup()  { 
- srand(seed);
- for(int i=0;i<numPins;i++){
+ srand(RANDOM_SEED);
+ for(int i=0;i<NUM_LED_PINS;i++){
    isOn[i]=rand()%2;
    analogWrite(pins[i],(isOn[i])?255:0); //initialize states
  }
@@ -20,9 +19,9 @@ void setup()  {
 }
 
 void switchStates(){
-  int delayTime = (rand() % rangeFadeTime + minFadeTime)/51;
+  int delayTime = (rand() % RANGE_FADE_TIME + MIN_FADE_TIME);
   for(int fadeValue = 0 ; fadeValue < 256; fadeValue +=5) { //fade
-    for(int i=0;i<numPins;i++){ //loop over all pins
+    for(int i=0;i<NUM_LED_PINS;i++){ //loop over all pins
         if (isBeingChanged[i]){ //change only marked pins
           int pin = pins[i];
           analogWrite(pin, (isOn[i])? 255-fadeValue : fadeValue); //fade on or off 
@@ -30,19 +29,19 @@ void switchStates(){
     }
     delay(delayTime); 
   }
-  for(int i=0;i<numPins;i++)
+  for(int i=0;i<NUM_LED_PINS;i++)
     isOn[i] = isBeingChanged[i] != isOn[i]; //xor
 }
 
 void markChanges(){
-  for(int i=0;i<numPins;i++)
+  for(int i=0;i<NUM_LED_PINS;i++)
     isBeingChanged[i] = (rand()%4 == 0); 
 }
 
 void loop()  {
   markChanges();
   switchStates();
-  delay(rand()%rangeWait + minWait); //delay between changes
+  delay(rand()%RANGE_WAIT + MIN_WAIT); //delay between changes
 }
 
 
