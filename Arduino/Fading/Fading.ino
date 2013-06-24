@@ -11,6 +11,10 @@ boolean isBeingChanged[NUM_LED_PINS];
 
 void setup()  { 
  srand(RANDOM_SEED);
+ for (int i=1; i < 14; i++) {
+   pinMode(i, OUTPUT);
+   analogWrite(i, LOW);
+ }
  for(int i=0;i<NUM_LED_PINS;i++){
    isOn[i]=rand()%2;
    analogWrite(pins[i],(isOn[i])?255:0); //initialize states
