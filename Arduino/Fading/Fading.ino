@@ -1,56 +1,48 @@
-#include<stdarg.h>
-#define NUM_LED_PINS 6
-#define DELAY_AMOUNT 5
-#define RANDOM_SEED 4 //IEEE-vetted standard random number
-int pins[] = {3,5,6,9,10,11};
-unsigned int steps[NUM_LED_PINS];
-unsigned int step = 0;
+//adjust these values as needed
+const int numPins = 6;
+const int minFadeTime = 500;
+const int rangeFadeTime = 500;
+const int minWait = 500;
+const int rangeWait = 500;
+const int seed = 1337;
 
+int pins[numPins] = {3,5,6,9,10,11};
+boolean isOn[numPins];
+boolean isBeingChanged[numPins];
 
-//quick thing to emulate printf behaviour
-void p(char *fmt, ... ){
-        char tmp[128]; // resulting string limited to 128 chars
-        va_list args;
-        va_start (args, fmt );
-        vsnprintf(tmp, 128, fmt, args);
-        va_end (args);
-        Serial.print(tmp);
-}
 void setup()  { 
- srand(RANDOM_SEED);
- for(int i=0;i<NUM_LED_PINS;i++){
-   pinMode(pins[i], OUTPUT);
+ srand(seed);
+ for(int i=0;i<numPins;i++){
+   isOn[i]=rand()%2;
+   analogWrite(pins[i],(isOn[i])?255:0); //initialize states
  }
- Serial.begin(9600);
- Serial.println("Set random seed: " + RANDOM_SEED);
- setSteps();
- step = 0; 
-} 
+ delay(3000);
+}
+
+void switchStates(){
+  int delayTime = (rand() % rangeFadeTime + minFadeTime)/51;
+  for(int fadeValue = 0 ; fadeValue < 256; fadeValue +=5) { //fade
+    for(int i=0;i<numPins;i++){ //loop over all pins
+        if (isBeingChanged[i]){ //change only marked pins
+          int pin = pins[i];
+          analogWrite(pin, (isOn[i])? 255-fadeValue : fadeValue); //fade on or off 
+        }
+    }
+    delay(delayTime); 
+  }
+  for(int i=0;i<numPins;i++)
+    isOn[i] = isBeingChanged[i] != isOn[i]; //xor
+}
+
+void markChanges(){
+  for(int i=0;i<numPins;i++)
+    isBeingChanged[i] = (rand()%4 == 0); 
+}
 
 void loop()  {
-  step++;
-  setAllPins(step);
-  delay(DELAY_AMOUNT);
+  markChanges();
+  switchStates();
+  delay(rand()%rangeWait + minWait); //delay between changes
 }
 
 
-void setSteps() {
-    for (int i = 0; i < NUM_LED_PINS; i++) {
-        steps[i] = rand() % 512U;
-        p("Pin %i has a step of %u\n", pins[i], steps[i]);
-        //steps[i] = 30 * i; for debugging
-    }
-}
-
-void setAllPins(unsigned int step) {
-    unsigned int numIter;
-    for (int i = 0; i < NUM_LED_PINS; i++) {
-        numIter = (step + steps[i]) % 512U;
-        if (numIter < 256) { //going up
-            analogWrite(pins[i], numIter);
-        }
-        else {  //going down
-            analogWrite(pins[i], 512 - numIter);
-        }
-    }
-}
