@@ -2,18 +2,26 @@
 #include <softPwm.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #define NUM_LED_PINS 7
 #define DELAY_AMOUNT 5
 #define RANDOM_SEED 4 //IEEE-vetted standard random number
 
+const int minFadeTime = 5;
+const int rangeFadeTime = 1;
+const int minWait = 4;
+const int rangeWait = 6;
+
 int pins[] = {0, 1, 2, 3, 4, 5, 6};
 unsigned int steps[NUM_LED_PINS];
+bool isOn[NUM_LED_PINS];
+bool isBeingChanged[NUM_LED_PINS];
 
 
 int setupPin(int pin);
-void setSteps();
-void setAllPins(unsigned int step);
+void markChanges();
+void switchStates();
 
 int main() {
     //setup()
@@ -23,14 +31,17 @@ int main() {
     }
     srand(RANDOM_SEED);
     fprintf(stderr, "Set random to be %i\n", RANDOM_SEED);
-    setSteps();
-    unsigned int step = 0;
+    for (int i = 0; i < NUM_LED_PINS; i++) {
+        isOn[i] = rand() % 2;
+        softPwmWrite(pins[i], (isOn[i])? 100:0);
+    }
+    //delay(3000);
 
     //loop()
     for (;;) {
-        step++; // we're allowed to do this because unsigned ints wrap
-        setAllPins(step);
-        delay(DELAY_AMOUNT);
+        markChanges();
+        switchStates();
+        delay(rand()%rangeWait + minWait); //delay between changes
     }
 
     return 0;
@@ -40,23 +51,23 @@ int setupPin(int pin) {
     return softPwmCreate(pin, 0, 100);
 }
 
-void setSteps() {
+void markChanges() {
     for (int i = 0; i < NUM_LED_PINS; i++) {
-        steps[i] = rand() % 202U;
-        fprintf(stderr, "Pin %i has a step of %u\n", pins[i], steps[i]);
-        //steps[i] = 30 * i; for debugging
+        isBeingChanged[i] = (rand() % 4 == 0);
     }
 }
 
-void setAllPins(unsigned int step) {
-    unsigned int numIter;
-    for (int i = 0; i < NUM_LED_PINS; i++) {
-        numIter = (step + steps[i]) % 202U;
-        if (numIter < 101) { //going up
-            softPwmWrite(pins[i], numIter);
+void switchStates() {
+    int delayTime = (rand() % rangeFadeTime + minFadeTime);
+    for(int fadeValue = 0 ; fadeValue < 101; fadeValue ++) { //fade
+        for(int i=0;i<NUM_LED_PINS;i++) { //loop over all pins
+            if (isBeingChanged[i]) { //change only marked pins
+                int pin = pins[i];
+                softPwmWrite(pin, (isOn[i])? 100-fadeValue : fadeValue); //fade on or off 
+            }
         }
-        else {  //going down
-            softPwmWrite(pins[i], 201 - numIter);
-        }
+    delay(delayTime); 
     }
+    for(int i=0;i<NUM_LED_PINS;i++)
+        isOn[i] = !isBeingChanged[i] != !isOn[i]; //xor
 }
